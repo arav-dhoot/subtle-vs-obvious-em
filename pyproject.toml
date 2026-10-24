@@ -1,0 +1,43 @@
+[project]
+name = "subtle-vs-obvious-em"
+version = "0.1.0"
+description = "Subtly vs. obviously incorrect advice and emergent misalignment"
+readme = "README.md"
+# inspect-petri requires >=3.12 and is now the binding constraint; tinker needs
+# >=3.11 and openai/peft/huggingface-hub >=3.10. Raised from 3.11 when the Petri
+# harness landed — uv refuses to resolve otherwise, since the declared floor has
+# to hold for every Python the project claims to support, not just the active one.
+requires-python = ">=3.12"
+
+# The default workflow — Tinker training, OpenAI-compatible sampling and
+# judging, adapter/result upload, and tracking. These are dependencies rather
+# than extras on purpose: `uv run` re-syncs to the default set on every
+# invocation, so anything installed with `uv sync --extra` is removed again the
+# next time you run something. Only genuinely optional things belong below.
+dependencies = [
+    "openai>=1.40",
+    "tinker>=0.27",
+    "tinker-cookbook>=0.5.7",
+    "huggingface-hub>=0.26",
+    "wandb>=0.18",
+    "inspect-ai>=0.3.252",
+    "inspect-petri>=3.0.11",
+    "anthropic>=0.120.2",
+]
+
+[project.optional-dependencies]
+# Local training on a GPU box. Several GB with CUDA wheels, and useless without
+# one, so it stays opt-in: uv sync --extra runpod
+runpod = [
+    "torch>=2.4",
+    "transformers>=4.45",
+    "peft>=0.13",
+    "datasets>=3.0",
+    "accelerate>=1.0",
+]
+# --judge-provider anthropic, for prompt caching + the Batch API.
+anthropic = ["anthropic>=0.40"]
+
+[tool.uv]
+# Scripts, not an installable package — don't try to build the project itself.
+package = false
